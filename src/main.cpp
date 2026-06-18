@@ -7,11 +7,9 @@
 
 static const std::string GFX_GAMMA_SIGNATURE = "? ? ? 52 ? ? ? 2F ? ? ? 1E ? ? ? 72 ? ? ? 1E ? ? ? D1 03 01 27 1E ? ? ? D1 E0 03 15 AA ? ? ? 52 ? ? ? 52";
 
-constexpr uint32_t MOV_W8_10   = 0x52800148;
-constexpr uint32_t SCVTF_S2_W8 = 0x1E220102;
-
-constexpr ptrdiff_t OFFSET_MOVK = 12;
-constexpr ptrdiff_t OFFSET_FMOV = 16;
+constexpr uint32_t FMOV_S2_ORIGINAL = 0x1E2E1002;
+constexpr uint32_t FMOV_S2_25       = 0x1E273002;
+constexpr ptrdiff_t OFFSET_FMOV     = 16;
 
 class BetterBrightnessMod {
 public:
@@ -26,14 +24,11 @@ private:
         if (base == 0)
             return false;
 
-        if (*reinterpret_cast<uint32_t*>(base + OFFSET_FMOV) != 0x1E2E1002)
+        if (*reinterpret_cast<uint32_t*>(base + OFFSET_FMOV) != FMOV_S2_ORIGINAL)
             return false;
 
-        uint32_t mov_w8_10 = MOV_W8_10;
-        uint32_t scvtf_s2_w8 = SCVTF_S2_W8;
-
-        return ::pl_patch_write_bytes(base + OFFSET_MOVK, reinterpret_cast<const uint8_t*>(&mov_w8_10), sizeof(mov_w8_10), "better_brightness_movk")
-            && ::pl_patch_write_bytes(base + OFFSET_FMOV, reinterpret_cast<const uint8_t*>(&scvtf_s2_w8), sizeof(scvtf_s2_w8), "better_brightness_fmov");
+        uint32_t patch = FMOV_S2_25;
+        return ::pl_patch_write_bytes(base + OFFSET_FMOV, reinterpret_cast<const uint8_t*>(&patch), sizeof(patch), "better_brightness_fmov");
     }
 };
 
